@@ -1,18 +1,12 @@
-// createMasterPlaylist.js
 const { ListObjectsV2Command, PutObjectCommand, S3Client } = require('@aws-sdk/client-s3');
 
 // Initialize the S3 client
 const s3 = new S3Client({
-  region: 'us-west-2',
-//   credentials: {
-//     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-//     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-//   },
+  region: 'us-east-1',
 });
 
 // Function to create the HLS master playlist
 async function createMasterPlaylist(bucket, videoId) {
-  // List objects in the specified S3 path
   const listCommand = new ListObjectsV2Command({
     Bucket: bucket,
     Prefix: `uploads/videos/review_videos/hls/${videoId}/`,
@@ -52,14 +46,13 @@ ${file720p}
   // Upload the master playlist to S3
   const uploadCommand = new PutObjectCommand({
     Bucket: bucket,
-    Key: `uploads/videos/review_videos/hls/${videoId}/master.m3u8`, // Path and filename for master.m3u8
+    Key: `uploads/videos/review_videos/hls/${videoId}/master.m3u8`,
     Body: masterPlaylist,
-    ContentType: 'application/vnd.apple.mpegurl',  // MIME type for .m3u8 files
+    ContentType: 'application/vnd.apple.mpegurl', 
   });
 
   await s3.send(uploadCommand);
   console.log('Master playlist created and uploaded successfully!');
 }
 
-// Export the function for use in other files
 module.exports = { createMasterPlaylist };

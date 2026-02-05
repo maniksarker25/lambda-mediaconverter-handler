@@ -23,7 +23,7 @@ exports.handler = async (event) => {
 
     // Generate and upload the master playlist for the HLS stream
     try {
-      await createMasterPlaylist('sampli-bucket101', userMetadata.videoId);  // Call createMasterPlaylist
+      await createMasterPlaylist('sampli-application', userMetadata.videoId);  // Call createMasterPlaylist
     } catch (error) {
       console.error('Error generating master playlist:', error);
     }
