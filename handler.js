@@ -2,13 +2,13 @@
 const connectDB = require('./db');
 const Review = require('./models/Review');
 const Notification = require('./models/Notification');
-const { createMasterPlaylist } = require('./createMasterPlaylist');
+// const { createMasterPlaylist } = require('./createMasterPlaylist');
 
 exports.handler = async (event) => {
   console.log("Received Event:", JSON.stringify(event));
 
   const { status, jobId, userMetadata } = event.detail;
-  const { reviewId, reviewerId } = userMetadata || {};
+  const { reviewId, reviewerId, videoId , rawFileName} = userMetadata || {};
 
   if (!reviewId || !reviewerId) {
     console.error('Missing reviewId or reviewerId in event');
@@ -18,15 +18,16 @@ exports.handler = async (event) => {
   await connectDB(process.env.MONGO_URI);
 
   if (status === 'COMPLETE') {
+    const cloudFrontUrl = `https://d3vsrns3ta794s.cloudfront.net/uploads/videos/review_videos/hls/${videoId}/${rawFileName}.m3u8`;
     // Update Review status to 'Ready'
-    await Review.findByIdAndUpdate(reviewId, { isReady: true });
+    await Review.findByIdAndUpdate(reviewId, { isReady: true ,video: cloudFrontUrl, });
 
     // Generate and upload the master playlist for the HLS stream
-    try {
-      await createMasterPlaylist('sampli-application', userMetadata.videoId);  // Call createMasterPlaylist
-    } catch (error) {
-      console.error('Error generating master playlist:', error);
-    }
+    // try {
+    //   await createMasterPlaylist('sampli-application', userMetadata.videoId);  // Call createMasterPlaylist
+    // } catch (error) {
+    //   console.error('Error generating master playlist:', error);
+    // }
 
     // Send success notification to the reviewer
     await Notification.create({
